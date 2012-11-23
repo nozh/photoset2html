@@ -1,0 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>Flickr Photoset to Html Code</title>
+</head>
+
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.5.min.js"></script>
+<script>
+
+// your api key
+var apiKey = '4f6e89fe692595ec4c26062392e8c0f6';
+var photosetID = prompt("Flickr Photoset to Html code. Enter your Photoset ID. ex) www.flickr.com/photos/username/sets/xxxxxxxxxxxxxx ");
+
+
+// Loading Photoset
+$.getJSON("http://api.flickr.com/services/rest/?method=flickr.photosets.getPhotos&api_key=" + apiKey + "&photoset_id=" + photosetID + "&format=json&nojsoncallback=1", photosetGetPhoto);
+
+function photosetGetPhoto(data) {
+	
+	var htmlString = "";
+	
+	$.each(data.photoset.photo, function(i, photo){
+		var imageLink = 'http://farm' + photo.farm + '.static.flickr.com/'+photo.server+'/'+photo.id+'_'+photo.secret+'_b.jpg';
+		htmlString += '<img src="' + imageLink + '" title="' + photo.title + '" alt="' + photo.title+'" /><br />';
+		
+	});
+	$('#images').text(htmlString);
+}
+
+</script>
+
+<body>
+<div id="images">loading...</div>
+</body>
+</html>
