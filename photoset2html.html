@@ -5,11 +5,17 @@
 </head>
 
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.5.min.js"></script>
-<script>
 
+
+<script type="text/javascript" src="apikey.js"></script>
+
+<script>
 // your api key
 // Get your own API here https://www.flickr.com/services/apps/create/apply/
-var apiKey = '4f6e89fe692595ec4c26062392e8c0f6';
+// and create a file apikey.js with contents like this
+// var apiKey = '4f6e89fe692595ec4c26062392e8c0f6';
+
+
 var photosetID = prompt("Flickr Photoset to Html code. Enter your Photoset ID. ex) www.flickr.com/photos/username/sets/xxxxxxxxxxxxxx ");
 
 
@@ -31,6 +37,6 @@ function photosetGetPhoto(data) {
 </script>
 
 <body>
-<div id="images">loading...</div>
+<textarea id="images">loading...</textarea>>
 </body>
 </html>
