@@ -2,12 +2,12 @@
 <html>
 <head>
 <title>Flickr Photoset to Html Code</title>
-</head>
-
-<script type="text/javascript" src="http://code.jquery.com/jquery-1.5.min.js"></script>
-
-
+<link href="/image-picker.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.6.min.js"></script>
 <script type="text/javascript" src="apikey.js"></script>
+<script type="text/javascript" src="image-picker.min.js"></script>
+</head>
+<body>
 
 <script>
 // your api key
@@ -15,28 +15,87 @@
 // and create a file apikey.js with contents like this
 // var apiKey = '';
 
+//var photosetID = 72157627740191106;
 
-var photosetID = prompt("Flickr Photoset to Html code. Enter your Photoset ID. ex) www.flickr.com/photos/username/sets/xxxxxxxxxxxxxx ");
+$(document).ready(function(){
+	$("#generate").click(function(){
+		var setId = $('#setid').val().match(/\d+/);
+		$.getJSON("https://api.flickr.com/services/rest/?method=flickr.photosets.getPhotos&api_key=" + apiKey + "&photoset_id=" + setId + "&format=json&nojsoncallback=1", photosetGetPhoto);
+	});
+	$("#htmlcode").click(function(){
+		this.select();
+	});
+	$("#update").click(function(){
+		htmlString = "";
+        var index = 1;
+		$("select option:selected").each(function(){
+			var imageLink = $(this).attr("data-img-src");
+			var photoTitle = $(this).text();
+			htmlString += $('#indexneeded').is(':checked')?(pad(index, 2) + '. '):('');
+			htmlString += $('#titleneeded').is(':checked')?(' ' + photoTitle + ' \n'):('');
+			htmlString += '<img src="' + imageLink + '" title="' + photoTitle + '" alt="' + photoTitle+'" />\n\n';
+			index += 1;	
+		});
+		$('#htmlcode').text(htmlString);
+	});
+});
+
+//var photosetID = prompt("Flickr Photoset to Html code. Enter your Photoset ID. ex) www.flickr.com/photos/username/sets/xxxxxxxxxxxxxx 72157627740191106");
 
 
 // Loading Photoset
-$.getJSON("https://api.flickr.com/services/rest/?method=flickr.photosets.getPhotos&api_key=" + apiKey + "&photoset_id=" + photosetID + "&format=json&nojsoncallback=1", photosetGetPhoto);
+
 
 function photosetGetPhoto(data) {
 	
 	var htmlString = "";
+	var htmlStringSm = "<select multiple='multiple' class='image-picker'>";
+	var index = 1;
 	
 	$.each(data.photoset.photo, function(i, photo){
-		var imageLink = 'http://farm' + photo.farm + '.static.flickr.com/'+photo.server+'/'+photo.id+'_'+photo.secret+'_b.jpg';
-		htmlString += '<img src="' + imageLink + '" title="' + photo.title + '" alt="' + photo.title+'" /><br />';
-		
+		var imageLink = 'https://farm' + photo.farm + '.static.flickr.com/'+photo.server+'/'+photo.id+'_'+photo.secret+'_b.jpg';
+		htmlString += $('#indexneeded').is(':checked')?(pad(index, 2) + '. '):('');
+		htmlString += $('#titleneeded').is(':checked')?(' ' + photo.title + ' \n'):('');
+		htmlString += '<img src="' + imageLink + '" title="' + photo.title + '" alt="' + photo.title+'" />\n\n';
+
+		var imageLinksm = 'https://farm' + photo.farm + '.static.flickr.com/'+photo.server+'/'+photo.id+'_'+photo.secret+'_s.jpg';
+		//					<option data-img-src="http://placekitten.com/220/200" value="1">Cute Kitten 1</option>
+		htmlStringSm += '<option data-img-src="' + imageLinksm + '" value="' + index + '">' +photo.title + '</option>\n';
+		//htmlStringSm += ' <img src="' + imageLinksm + '" title="' + photo.title + '" alt="' + photo.title+'" />\n';
+		index += 1;	
 	});
-	$('#images').text(htmlString);
+	htmlStringSm += "</select>";
+
+	$('#htmlcode').text(htmlString);
+	$('#images').html(htmlStringSm);
+	$("select").imagepicker({
+          hide_select : false,
+          show_label  : true
+        });
+	$("select").select();
+}
+
+function pad (str, max) {
+  str = str.toString();
+  return str.length < max ? pad("0" + str, max) : str;
 }
 
 </script>
 
-<body>
-<textarea id="images">loading...</textarea>>
+<div>
+<p> Flickr Album(Set) link or id 
+<br><input id="setid" type="text" value="https://www.flickr.com/photos/nozh/sets/72157627740191106/" style="width:80%;"></p>
+<table>
+<tr><td>Photo index numbers </td><td><input type="checkbox" id="indexneeded" checked></td></tr>
+<tr><td>Photo title  </td><td><input type="checkbox" id="titleneeded" checked></td></tr>
+</table>
+<button id="generate">Generate code</button>
+<button id="update">Update</button>
+</div>
+<textarea id="htmlcode" style="width:80%; height:100px;"></textarea>
+<div id="images" style="width:80%"></div>
+
+
+
 </body>
 </html>
